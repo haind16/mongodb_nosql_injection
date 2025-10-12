@@ -1,0 +1,18 @@
+{
+  "name": "mongodb-nosql-injection-demo",
+  "version": "1.0.0",
+  "description": "Demo ứng dụng có lỗ hổng NoSQL Injection cho mục đích học tập",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "setup": "node setup-db.js"
+  },
+  "keywords": ["mongodb", "security", "nosql-injection", "demo"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongodb": "^6.3.0",
+    "body-parser": "^1.20.2"
+  }
+}

