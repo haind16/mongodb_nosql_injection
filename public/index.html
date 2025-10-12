@@ -4,279 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MongoDB NoSQL Injection Demo - An toàn Web và CSDL</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .header {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 2.5em;
-        }
-
-        .header .subtitle {
-            color: #666;
-            font-size: 1.1em;
-        }
-
-        .warning {
-            background: #fff3cd;
-            border-left: 5px solid #ffc107;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 5px;
-        }
-
-        .warning strong {
-            color: #856404;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
-        .card.vulnerable {
-            border-top: 5px solid #dc3545;
-        }
-
-        .card.secure {
-            border-top: 5px solid #28a745;
-        }
-
-        .card h2 {
-            margin-bottom: 20px;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .badge {
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.75em;
-            font-weight: bold;
-        }
-
-        .badge-danger {
-            background: #dc3545;
-            color: white;
-        }
-
-        .badge-success {
-            background: #28a745;
-            color: white;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 600;
-        }
-
-        input[type="text"],
-        input[type="password"],
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: border-color 0.3s;
-        }
-
-        input:focus,
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        textarea {
-            font-family: 'Courier New', monospace;
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px 25px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            display: none;
-        }
-
-        .result.success {
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-        }
-
-        .result.error {
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-        }
-
-        .result.show {
-            display: block;
-        }
-
-        .user-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 10px;
-        }
-
-        .user-info h4 {
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .user-info p {
-            margin: 5px 0;
-            color: #666;
-        }
-
-        .exploit-guide {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            margin-bottom: 30px;
-        }
-
-        .exploit-guide h2 {
-            color: #dc3545;
-            margin-bottom: 20px;
-        }
-
-        .exploit-item {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border-left: 4px solid #dc3545;
-        }
-
-        .exploit-item h3 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .code {
-            background: #272822;
-            color: #f8f8f2;
-            padding: 15px;
-            border-radius: 5px;
-            font-family: 'Courier New', monospace;
-            overflow-x: auto;
-            margin: 10px 0;
-        }
-
-        .copy-btn {
-            background: #6c757d;
-            padding: 5px 15px;
-            font-size: 0.85em;
-            width: auto;
-            margin-top: 10px;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .tab {
-            padding: 10px 20px;
-            background: #e9ecef;
-            border: none;
-            border-radius: 8px 8px 0 0;
-            cursor: pointer;
-            font-weight: 600;
-            color: #666;
-        }
-
-        .tab.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        @media (max-width: 968px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
@@ -311,11 +39,11 @@
                     <p><strong>Payload 1 - Not Equal:</strong></p>
                     <div class="code">{"$ne": null}</div>
                     <button class="copy-btn" onclick='copyToClipboard("{\"$ne\": null}")'>📋 Copy</button>
-                    <p style="margin-top: 15px;"><strong>Payload 2 - Greater Than:</strong></p>
+                    <p class="mt-15"><strong>Payload 2 - Greater Than:</strong></p>
                     <div class="code">{"$gt": ""}</div>
                     <button class="copy-btn" onclick='copyToClipboard("{\"$gt\": \"\"}")'>📋 Copy</button>
 
-                    <p style="margin-top: 15px;"><strong>Giải thích:</strong> Khi gửi <code>{"$ne": null}</code>, MongoDB query trở thành:</p>
+                    <p class="mt-15"><strong>Giải thích:</strong> Khi gửi <code>{"$ne": null}</code>, MongoDB query trở thành:</p>
                     <div class="code">db.users.findOne({ username: {$ne: null}, password: {$ne: null} })</div>
                     <p>Điều này luôn đúng với user đầu tiên trong database (thường là admin)!</p>
                 </div>
@@ -331,19 +59,19 @@
                     <div class="code">^a</div>
                     <button class="copy-btn" onclick="copyToClipboard('^a')">📋 Copy</button>
                     
-                    <p style="margin-top: 15px;"><strong>Payload 2 - Tìm users bắt đầu bằng 'admin':</strong></p>
+                    <p class="mt-15"><strong>Payload 2 - Tìm users bắt đầu bằng 'admin':</strong></p>
                     <div class="code">^admin</div>
                     <button class="copy-btn" onclick="copyToClipboard('^admin')">📋 Copy</button>
                     
-                    <p style="margin-top: 15px;"><strong>Payload 3 - Tìm tất cả (wildcard):</strong></p>
+                    <p class="mt-15"><strong>Payload 3 - Tìm tất cả (wildcard):</strong></p>
                     <div class="code">.*</div>
                     <button class="copy-btn" onclick="copyToClipboard('.*')">📋 Copy</button>
                     
-                    <p style="margin-top: 15px;"><strong>Advanced - Blind Enumeration:</strong></p>
+                    <p class="mt-15"><strong>Advanced - Blind Enumeration:</strong></p>
                     <div class="code">^admin.*</div>
                     <button class="copy-btn" onclick="copyToClipboard('^admin.*')">📋 Copy</button>
                     
-                    <p style="margin-top: 15px;"><strong>Giải thích:</strong> Attacker có thể dùng regex để enumerate từng ký tự của username/password một cách mù quáng (blind).</p>
+                    <p class="mt-15"><strong>Giải thích:</strong> Attacker có thể dùng regex để enumerate từng ký tự của username/password một cách mù quáng (blind).</p>
                 </div>
             </div>
 
@@ -357,15 +85,15 @@
                     <div class="code">' || '1'=='1</div>
                     <button class="copy-btn" onclick="copyToClipboard('\' || \'1\'==\'1')">📋 Copy</button>
                     
-                    <p style="margin-top: 15px;"><strong>Payload 2 - Comment out phần còn lại:</strong></p>
+                    <p class="mt-15"><strong>Payload 2 - Comment out phần còn lại:</strong></p>
                     <div class="code">'; return true; //</div>
                     <button class="copy-btn" onclick="copyToClipboard('\'; return true; //')">📋 Copy</button>
                     
-                    <p style="margin-top: 15px;"><strong>Payload 3 - Sleep attack (DoS):</strong></p>
+                    <p class="mt-15"><strong>Payload 3 - Sleep attack (DoS):</strong></p>
                     <div class="code">'; sleep(5000); return true; //</div>
                     <button class="copy-btn" onclick="copyToClipboard('\'; sleep(5000); return true; //')">📋 Copy</button>
                     
-                    <p style="margin-top: 15px;"><strong>Giải thích:</strong> Query ban đầu:</p>
+                    <p class="mt-15"><strong>Giải thích:</strong> Query ban đầu:</p>
                     <div class="code">$where: "this.username == 'USER_INPUT'"</div>
                     <p>Sau khi inject <code>' || '1'=='1</code>, query trở thành:</p>
                     <div class="code">$where: "this.username == '' || '1'=='1'"</div>
@@ -377,7 +105,7 @@
                 <div class="exploit-item">
                     <h3>🛡️ Các biện pháp phòng chống NoSQL Injection</h3>
                     
-                    <h4 style="margin-top: 20px;">1. Input Validation & Sanitization</h4>
+                    <h4 class="mt-20">1. Input Validation & Sanitization</h4>
                     <div class="code">// Kiểm tra kiểu dữ liệu
 if (typeof username !== 'string' || typeof password !== 'string') {
     return error('Invalid input type');
@@ -389,34 +117,34 @@ if (dangerous.test(input)) {
     return error('Invalid characters');
 }</div>
                     
-                    <h4 style="margin-top: 20px;">2. Sử dụng $eq Operator</h4>
+                    <h4 class="mt-20">2. Sử dụng $eq Operator</h4>
                     <div class="code">// KHÔNG AN TOÀN
 db.users.findOne({ username: req.body.username })
 
 // AN TOÀN
 db.users.findOne({ username: { $eq: req.body.username } })</div>
                     
-                    <h4 style="margin-top: 20px;">3. Tránh $where Operator</h4>
+                    <h4 class="mt-20">3. Tránh $where Operator</h4>
                     <div class="code">// TUYỆT ĐỐI TRÁNH
 db.users.findOne({ $where: `this.username == '${input}'` })
 
 // SỬ DỤNG
 db.users.findOne({ username: { $eq: input } })</div>
                     
-                    <h4 style="margin-top: 20px;">4. Implement Authentication & Authorization</h4>
-                    <ul style="margin-top: 10px;">
+                    <h4 class="mt-20">4. Implement Authentication & Authorization</h4>
+                    <ul class="mt-10">
                         <li>Bật authentication trên MongoDB</li>
                         <li>Sử dụng role-based access control (RBAC)</li>
                         <li>Principle of least privilege</li>
                     </ul>
                     
-                    <h4 style="margin-top: 20px;">5. Use ORM/ODM Libraries</h4>
+                    <h4 class="mt-20">5. Use ORM/ODM Libraries</h4>
                     <div class="code">// Mongoose tự động escape
 const User = mongoose.model('User', userSchema);
 User.findOne({ username: username }); // Safe</div>
                     
-                    <h4 style="margin-top: 20px;">6. Rate Limiting & Monitoring</h4>
-                    <ul style="margin-top: 10px;">
+                    <h4 class="mt-20">6. Rate Limiting & Monitoring</h4>
+                    <ul class="mt-10">
                         <li>Giới hạn số lần đăng nhập sai</li>
                         <li>Monitor suspicious queries</li>
                         <li>Log tất cả failed attempts</li>
