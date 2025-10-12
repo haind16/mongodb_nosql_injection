@@ -85,14 +85,14 @@
                     <div class="code">' || '1'=='1</div>
                     <button class="copy-btn" onclick="copyToClipboard('\' || \'1\'==\'1')">📋 Copy</button>
                     
-                    <p class="mt-15"><strong>Payload 2 - Comment out phần còn lại:</strong></p>
-                    <div class="code">'; return true; //</div>
-                    <button class="copy-btn" onclick="copyToClipboard('\'; return true; //')">📋 Copy</button>
+                    <p class="mt-15"><strong>Payload 2 - IIFE:</strong></p>
+                    <div class="code">' || (function(){ return true; })() || '</div>
+                    <button class="copy-btn" onclick="copyToClipboard('\'; (function(){ return true; })(); //')">📋 Copy</button>
                     
                     <p class="mt-15"><strong>Payload 3 - Sleep attack (DoS):</strong></p>
-                    <div class="code">'; sleep(5000); return true; //</div>
-                    <button class="copy-btn" onclick="copyToClipboard('\'; sleep(5000); return true; //')">📋 Copy</button>
-                    
+                    <div class="code">' || (function(){ sleep(5000); return true; })() || '</div>
+                    <button class="copy-btn" onclick="copyToClipboard('\'; (function(){ sleep(5000); return true; })(); //')">📋 Copy</button>
+
                     <p class="mt-15"><strong>Giải thích:</strong> Query ban đầu:</p>
                     <div class="code">$where: "this.username == 'USER_INPUT'"</div>
                     <p>Sau khi inject <code>' || '1'=='1</code>, query trở thành:</p>
@@ -198,32 +198,39 @@ User.findOne({ username: username }); // Safe</div>
             <div class="card vulnerable">
                 <h2>
                     <span>🔍 Vulnerable Search</span>
-                    <span class="badge badge-danger">REGEX INJECTION</span>
+                    <span class="badge badge-danger">VULNERABLE</span>
                 </h2>
                 <form id="searchForm">
                     <div class="form-group">
-                        <label>Search Username:</label>
-                        <input type="text" id="searchTerm" placeholder='Thử: ^admin hoặc .*'>
+                        <label>Tìm kiếm người dùng:</label>
+                        <input type="text" id="searchTerm" placeholder='Nhập tên người dùng để tìm kiếm...'>
                     </div>
-                    <button type="submit">🔎 Search</button>
+                    <button type="submit">🔎 Tìm kiếm</button>
                 </form>
                 <div id="searchResult" class="result"></div>
+                <div id="attackDetected" class="attack-alert" style="display:none">
+                    <span class="attack-icon">⚠️</span>
+                    <div class="attack-message">
+                        <strong>Phát hiện tấn công!</strong>
+                        <p id="attackType"></p>
+                    </div>
+                </div>
             </div>
 
-            <!-- VULNERABLE WHERE -->
-            <div class="card vulnerable">
+            <!-- SECURE SEARCH -->
+            <div class="card secure">
                 <h2>
-                    <span>⚠️ Check Username ($where)</span>
-                    <span class="badge badge-danger">JS INJECTION</span>
+                    <span>🔍 Secure Search</span>
+                    <span class="badge badge-success">PROTECTED</span>
                 </h2>
-                <form id="checkUsernameForm">
+                <form id="secureSearchForm">
                     <div class="form-group">
-                        <label>Username to check:</label>
-                        <input type="text" id="checkUsername" placeholder="Thử: '; return true; //">
+                        <label>Tìm kiếm an toàn:</label>
+                        <input type="text" id="secureSearchTerm" placeholder="Nhập từ khóa tìm kiếm...">
                     </div>
-                    <button type="submit">✔️ Check Availability</button>
+                    <button type="submit">✅ Tìm kiếm (An toàn)</button>
                 </form>
-                <div id="checkResult" class="result"></div>
+                <div id="secureSearchResult" class="result"></div>
             </div>
         </div>
 
@@ -348,9 +355,17 @@ User.findOne({ username: username }); // Safe</div>
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const searchTerm = document.getElementById('searchTerm').value;
+            const searchTerm = document.getElementById('searchTerm').value.trim();
+            const searchButton = e.target.querySelector('button');
+
+            // Nếu URL có query params, xóa đi
+            const url = window.location.pathname;
+            window.history.replaceState({}, document.title, url);
             
             try {
+                // Disable button during search
+                searchButton.disabled = true;
+
                 const response = await fetch('/api/search', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -361,26 +376,36 @@ User.findOne({ username: username }); // Safe</div>
                 showResult('searchResult', data.success, `Tìm thấy ${data.results?.length || 0} kết quả`, data);
             } catch (error) {
                 showResult('searchResult', false, 'Lỗi: ' + error.message);
+            } finally {
+                // Re-enable button
+                searchButton.disabled = false;
             }
         });
 
-        // Check Username (Vulnerable $where)
-        document.getElementById('checkUsernameForm').addEventListener('submit', async (e) => {
+        // Secure Search
+        document.getElementById('secureSearchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const username = document.getElementById('checkUsername').value;
+            const searchTerm = document.getElementById('secureSearchTerm').value.trim();
+            const searchButton = e.target.querySelector('button');
             
             try {
-                const response = await fetch('/api/check-username', {
+                // Disable button during search
+                searchButton.disabled = true;
+
+                const response = await fetch('/api/secure/search', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username })
+                    body: JSON.stringify({ searchTerm })
                 });
                 
                 const data = await response.json();
-                showResult('checkResult', true, data.message);
+                showResult('secureSearchResult', data.success, `Tìm thấy ${data.users?.length || 0} kết quả`, data);
             } catch (error) {
-                showResult('checkResult', false, 'Lỗi: ' + error.message);
+                showResult('secureSearchResult', false, 'Lỗi: ' + error.message);
+            } finally {
+                // Re-enable button
+                searchButton.disabled = false;
             }
         });
     </script>

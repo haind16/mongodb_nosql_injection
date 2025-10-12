@@ -84,25 +84,58 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// 2. VULNERABLE SEARCH - Regex Injection
+// 2. VULNERABLE SEARCH
 app.post('/api/search', async (req, res) => {
   try {
     const { searchTerm } = req.body;
     
+    // Kiểm tra input rỗng
+    if (!searchTerm || !searchTerm.trim()) {
+      return res.json({
+        success: false,
+        message: 'Vui lòng nhập từ khóa tìm kiếm'
+      });
+    }
+
     console.log('\n[VULNERABLE] Search query:', searchTerm);
 
-    // LỖ HỔNG: Regex injection
-    const users = await db.collection('users').find({
-      username: { $regex: searchTerm }
-    }).toArray();
+    let query;
+    if (searchTerm.includes('this.') || searchTerm.includes("\'") || searchTerm.includes(';')) {
+      // LỖ HỔNG CỰC KỲ NGUY HIỂM: $where với JavaScript injection
+      console.log('[DETECTED] JavaScript injection attempt!');
+      query = {
+        $where: `this.username == '${searchTerm}'`
+      };
+    } else {
+      // LỖ HỔNG: Regex injection
+      console.log('[DETECTED] Regex pattern:', searchTerm);
+      query = {
+        username: { $regex: searchTerm }
+      };
+    }
+
+    const users = await db.collection('users').find(query).toArray();
+
+    const results = users.map(u => ({
+      username: u.username,
+      email: u.email,
+      role: u.role,
+      salary: u.salary, // Thêm salary để demo JS injection
+      department: u.department
+    }));
+
+    // Nếu không có kết quả, trả về success: false
+    if (results.length === 0) {
+      return res.json({
+        success: false,
+        message: `Không tìm thấy kết quả phù hợp với từ khóa "${searchTerm}"`
+      });
+    }
 
     res.json({
       success: true,
-      results: users.map(u => ({
-        username: u.username,
-        email: u.email,
-        role: u.role
-      }))
+      message: `Tìm thấy ${results.length} kết quả cho "${searchTerm}"`,
+      results: results
     });
   } catch (error) {
     console.error('Search error:', error);
@@ -113,44 +146,175 @@ app.post('/api/search', async (req, res) => {
   }
 });
 
-// 3. VULNERABLE WHERE CLAUSE
-app.post('/api/check-username', async (req, res) => {
-  try {
-    const { username } = req.body;
-    
-    console.log('\n[VULNERABLE] Check username:', username);
-
-    // LỖ HỔNG CỰC KỲ NGUY HIỂM: $where với JavaScript injection
-    const user = await db.collection('users').findOne({
-      $where: `this.username == '${username}'`
-    });
-
-    res.json({
-      exists: !!user,
-      message: user ? 'Username đã tồn tại' : 'Username khả dụng'
-    });
-  } catch (error) {
-    console.error('Check username error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Lỗi kiểm tra: ' + error.message
-    });
-  }
-});
-
 // ==========================================
 // SECURE ENDPOINTS (ĐÃ ĐƯỢC BẢO VỆ)
 // ==========================================
 
-// Helper function to validate input
-function validateInput(input) {
+// Helper Functions
+function validateSearchInput(input) {
+  // Validate data type first
   if (typeof input !== 'string') {
-    return false;
+    return {
+      success: false,
+      message: 'Input phải là chuỗi'
+    };
   }
-  // Không cho phép các ký tự đặc biệt của MongoDB
-  const dangerous = /[\$\{\}]/;
-  return !dangerous.test(input);
+
+  // Trim input and check if empty
+  const trimmedInput = input.trim();
+  if (!trimmedInput) {
+    return {
+      success: false,
+      message: 'Vui lòng nhập từ khóa tìm kiếm hợp lệ'
+    };
+  }
+
+  // Validate length after trimming
+  if (trimmedInput.length < 2 || trimmedInput.length > 50) {
+    return {
+      success: false,
+      message: 'Độ dài tìm kiếm phải từ 2-50 ký tự'
+    };
+  }
+
+  // Validate characters - Extended security checks
+  const jsOperators = /\|\||&&/;  // Match || and && operators
+  const jsFunction = /function\s*\([^)]*\)/i;  // Match function declarations
+  const jsFunctionArrow = /=>/;  // Match arrow functions
+  const jsKeywords = /\b(return|true|false)\b/i;  // Match JavaScript keywords
+  const sqlOperators = /\s+(OR|AND|UNION|SELECT|WHERE|UPDATE|DELETE)\s+/i;
+  const mongoOperators = /\$[a-zA-Z]+/;  // MongoDB operators start with $
+  const dangerousChars = /[\$\{\}<>\\\/]/;  // Removed | from dangerous chars
+  
+  // Check JavaScript operators (|| and &&)
+  if (jsOperators.test(input)) {
+    return {
+      success: false,
+      message: 'Phát hiện toán tử logic JavaScript không hợp lệ trong input'
+    };
+  }
+
+  // Check function declarations
+  if (jsFunction.test(input) || jsFunctionArrow.test(input)) {
+    return {
+      success: false,
+      message: 'Phát hiện khai báo hàm JavaScript không hợp lệ trong input'
+    };
+  }
+
+  // Check JavaScript keywords
+  if (jsKeywords.test(input)) {
+    return {
+      success: false,
+      message: 'Phát hiện từ khóa JavaScript không hợp lệ trong input'
+    };
+  }
+
+  // Check dangerous characters
+  if (dangerousChars.test(input)) {
+    return {
+      success: false,
+      message: 'Input chứa ký tự đặc biệt không được phép'
+    };
+  }
+
+  // Check SQL operators
+  if (sqlOperators.test(input)) {
+    return {
+      success: false,
+      message: 'Phát hiện toán tử SQL không hợp lệ trong input'
+    };
+  }
+
+  // Check MongoDB operators
+  if (mongoOperators.test(input)) {
+    return {
+      success: false,
+      message: 'Phát hiện toán tử MongoDB không hợp lệ trong input'
+    };
+  }
+
+  // Check for complex JavaScript injection patterns
+  const normalizedInput = input.toLowerCase().replace(/\s+/g, '');
+  const suspiciousPatterns = [
+    'function', 'return', 'eval', 'exec', 
+    'constructor', 'prototype', '__proto__',
+    'setinterval', 'settimeout', 'promise',
+    'async', 'await', 'window', 'document',
+    'global', 'process', 'require'
+  ];
+
+  if (suspiciousPatterns.some(pattern => normalizedInput.includes(pattern))) {
+    return {
+      success: false,
+      message: 'Phát hiện mẫu JavaScript không hợp lệ trong input'
+    };
+  }
+
+  return {
+    success: true
+  };
 }
+
+function escapeRegex(text) {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+}
+
+// SECURE SEARCH ENDPOINT
+app.post('/api/secure/search', async (req, res) => {
+  try {
+    const { searchTerm } = req.body;
+    
+    console.log('\n[SECURE] Search attempt:', searchTerm);
+
+    // 1. Input Validation
+    const validationResult = validateSearchInput(searchTerm);
+    if (!validationResult.success) {
+      return res.json(validationResult);
+    }
+
+    // 2. Escape Regex Special Characters
+    const escapedTerm = escapeRegex(searchTerm);
+    
+    // 3. Dùng $regex an toàn với case-insensitive
+    const users = await db.collection('users').find({
+      $or: [
+        { username: { $regex: escapedTerm, $options: 'i' } },
+        { email: { $regex: escapedTerm, $options: 'i' } },
+        { department: { $regex: escapedTerm, $options: 'i' } }
+      ]
+    }).toArray();
+
+    // 4. Chỉ trả về thông tin cần thiết
+    const safeResults = users.map(user => ({
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      department: user.department
+    }));
+
+    // Nếu không có kết quả, trả về success: false
+    if (safeResults.length === 0) {
+      return res.json({
+        success: false,
+        message: `Không tìm thấy kết quả phù hợp với từ khóa "${searchTerm}"`
+      });
+    }
+
+    // Nếu có kết quả, trả về success: true và danh sách kết quả
+    return res.json({
+      success: true,
+      message: `Tìm thấy ${safeResults.length} kết quả cho "${searchTerm}"`,
+      users: safeResults
+    });
+  } catch (error) {
+    console.error('[SECURE] Search error:', error);
+    res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
 
 // SECURE LOGIN
 app.post('/api/secure-login', async (req, res) => {
