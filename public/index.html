@@ -3,411 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MongoDB NoSQL Injection Demo - An toàn Web và CSDL</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Banking Security Demo - Login</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔓 MongoDB NoSQL Injection Demo</h1>
-            <p class="subtitle">Đề tài: Tìm hiểu hệ CSDL MongoDB - Môn An toàn Web và CSDL</p>
-            <div class="warning">
-                <strong>⚠️ CẢNH BÁO:</strong> Đây là demo cho mục đích học tập. KHÔNG sử dụng các kỹ thuật này trên hệ thống thực tế!
-            </div>
+            <h1>Banking Security Demo</h1>
+            <p>NoSQL Injection Vulnerability Testing Platform</p>
         </div>
 
-        <div class="exploit-guide">
-            <h2>📚 Hướng dẫn Khai thác (Exploit Guide)</h2>
-            
-            <div class="tabs">
-                <button class="tab active" onclick="switchTab('attack1')">Attack 1: Bypass Login</button>
-                <button class="tab" onclick="switchTab('attack2')">Attack 2: Data Extraction</button>
-                <button class="tab" onclick="switchTab('attack3')">Attack 3: JS Injection</button>
-                <button class="tab" onclick="switchTab('protection')">🛡️ Phòng chống</button>
+        <div class="content">
+            <h2 class="login-title">Employee Login</h2>
+
+            <div class="hint-box">
+                <strong>Attack 1: Authentication Bypass</strong><br>
+                Test NoSQL injection to bypass authentication:<br><br>
+                <strong>Method 1: NoSQL Operator Injection</strong><br>
+                • Username: <code>admin</code><br>
+                • Password: <code>{"$ne": ""}</code><br><br>
+                <strong>Method 2: Try other operators</strong><br>
+                • <code>{"$gt": ""}</code> - Greater than empty<br>
+                • <code>{"$exists": true}</code> - Field exists<br>
+                • <code>{"$regex": ".*"}</code> - Match anything<br><br>
+                <strong>Normal Login (Test):</strong><br>
+                • admin / admin123<br>
+                • john_doe / pass123
             </div>
 
-            <div id="attack1" class="tab-content active">
-                <div class="exploit-item">
-                    <h3>🎯 Attack 1: Authentication Bypass</h3>
-                    <p><strong>Mô tả:</strong> Sử dụng MongoDB operators để bypass xác thực mà không cần biết password.</p>
-                    <p><strong>Cách thực hiện:</strong></p>
-                    <ol>
-                        <li>Ở form "Vulnerable Login", nhập payload sau vào Username và Password</li>
-                        <li>Payload sẽ khiến query luôn trả về true</li>
-                    </ol>
-                    
-                    <p><strong>Payload 1 - Not Equal:</strong></p>
-                    <div class="code">{"$ne": null}</div>
-                    <button class="copy-btn" onclick='copyToClipboard("{\"$ne\": null}")'>📋 Copy</button>
-                    <p class="mt-15"><strong>Payload 2 - Greater Than:</strong></p>
-                    <div class="code">{"$gt": ""}</div>
-                    <button class="copy-btn" onclick='copyToClipboard("{\"$gt\": \"\"}")'>📋 Copy</button>
-
-                    <p class="mt-15"><strong>Giải thích:</strong> Khi gửi <code>{"$ne": null}</code>, MongoDB query trở thành:</p>
-                    <div class="code">db.users.findOne({ username: {$ne: null}, password: {$ne: null} })</div>
-                    <p>Điều này luôn đúng với user đầu tiên trong database (thường là admin)!</p>
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label>Username:</label>
+                    <input type="text" id="username" placeholder="Enter username" value="admin" required>
                 </div>
-            </div>
-
-            <div id="attack2" class="tab-content">
-                <div class="exploit-item">
-                    <h3>🎯 Attack 2: Regex Injection - Data Extraction</h3>
-                    <p><strong>Mô tả:</strong> Sử dụng regex để trích xuất dữ liệu từng ký tự.</p>
-                    <p><strong>Cách thực hiện:</strong></p>
-                    
-                    <p><strong>Payload 1 - Tìm users bắt đầu bằng 'a':</strong></p>
-                    <div class="code">^a</div>
-                    <button class="copy-btn" onclick="copyToClipboard('^a')">📋 Copy</button>
-                    
-                    <p class="mt-15"><strong>Payload 2 - Tìm users bắt đầu bằng 'admin':</strong></p>
-                    <div class="code">^admin</div>
-                    <button class="copy-btn" onclick="copyToClipboard('^admin')">📋 Copy</button>
-                    
-                    <p class="mt-15"><strong>Payload 3 - Tìm tất cả (wildcard):</strong></p>
-                    <div class="code">.*</div>
-                    <button class="copy-btn" onclick="copyToClipboard('.*')">📋 Copy</button>
-                    
-                    <p class="mt-15"><strong>Advanced - Blind Enumeration:</strong></p>
-                    <div class="code">^admin.*</div>
-                    <button class="copy-btn" onclick="copyToClipboard('^admin.*')">📋 Copy</button>
-                    
-                    <p class="mt-15"><strong>Giải thích:</strong> Attacker có thể dùng regex để enumerate từng ký tự của username/password một cách mù quáng (blind).</p>
-                </div>
-            </div>
-
-            <div id="attack3" class="tab-content">
-                <div class="exploit-item">
-                    <h3>🎯 Attack 3: JavaScript Injection với $where</h3>
-                    <p><strong>Mô tả:</strong> Lỗ hổng CỰC KỲ NGUY HIỂM - cho phép thực thi JavaScript code trên server.</p>
-                    <p><strong>⚠️ CẢNH BÁO:</strong> Đây là lỗ hổng nghiêm trọng nhất!</p>
-                    
-                    <p><strong>Payload 1 - Luôn trả về true:</strong></p>
-                    <div class="code">' || '1'=='1</div>
-                    <button class="copy-btn" onclick="copyToClipboard('\' || \'1\'==\'1')">📋 Copy</button>
-                    
-                    <p class="mt-15"><strong>Payload 2 - IIFE:</strong></p>
-                    <div class="code">' || (function(){ return true; })() || '</div>
-                    <button class="copy-btn" onclick="copyToClipboard('\'; (function(){ return true; })(); //')">📋 Copy</button>
-                    
-                    <p class="mt-15"><strong>Payload 3 - Sleep attack (DoS):</strong></p>
-                    <div class="code">' || (function(){ sleep(5000); return true; })() || '</div>
-                    <button class="copy-btn" onclick="copyToClipboard('\'; (function(){ sleep(5000); return true; })(); //')">📋 Copy</button>
-
-                    <p class="mt-15"><strong>Giải thích:</strong> Query ban đầu:</p>
-                    <div class="code">$where: "this.username == 'USER_INPUT'"</div>
-                    <p>Sau khi inject <code>' || '1'=='1</code>, query trở thành:</p>
-                    <div class="code">$where: "this.username == '' || '1'=='1'"</div>
-                    <p>Kết quả: Luôn trả về true cho tất cả documents!</p>
-                </div>
-            </div>
-
-            <div id="protection" class="tab-content">
-                <div class="exploit-item">
-                    <h3>🛡️ Các biện pháp phòng chống NoSQL Injection</h3>
-                    
-                    <h4 class="mt-20">1. Input Validation & Sanitization</h4>
-                    <div class="code">// Kiểm tra kiểu dữ liệu
-if (typeof username !== 'string' || typeof password !== 'string') {
-    return error('Invalid input type');
-}
-
-// Loại bỏ các ký tự nguy hiểm
-const dangerous = /[\$\{\}]/;
-if (dangerous.test(input)) {
-    return error('Invalid characters');
-}</div>
-                    
-                    <h4 class="mt-20">2. Sử dụng $eq Operator</h4>
-                    <div class="code">// KHÔNG AN TOÀN
-db.users.findOne({ username: req.body.username })
-
-// AN TOÀN
-db.users.findOne({ username: { $eq: req.body.username } })</div>
-                    
-                    <h4 class="mt-20">3. Tránh $where Operator</h4>
-                    <div class="code">// TUYỆT ĐỐI TRÁNH
-db.users.findOne({ $where: `this.username == '${input}'` })
-
-// SỬ DỤNG
-db.users.findOne({ username: { $eq: input } })</div>
-                    
-                    <h4 class="mt-20">4. Implement Authentication & Authorization</h4>
-                    <ul class="mt-10">
-                        <li>Bật authentication trên MongoDB</li>
-                        <li>Sử dụng role-based access control (RBAC)</li>
-                        <li>Principle of least privilege</li>
-                    </ul>
-                    
-                    <h4 class="mt-20">5. Use ORM/ODM Libraries</h4>
-                    <div class="code">// Mongoose tự động escape
-const User = mongoose.model('User', userSchema);
-User.findOne({ username: username }); // Safe</div>
-                    
-                    <h4 class="mt-20">6. Rate Limiting & Monitoring</h4>
-                    <ul class="mt-10">
-                        <li>Giới hạn số lần đăng nhập sai</li>
-                        <li>Monitor suspicious queries</li>
-                        <li>Log tất cả failed attempts</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <div class="grid">
-            <!-- VULNERABLE LOGIN -->
-            <div class="card vulnerable">
-                <h2>
-                    <span>🔓 Vulnerable Login</span>
-                    <span class="badge badge-danger">CÓ LỖ HỔNG</span>
-                </h2>
-                <form id="vulnerableLoginForm">
-                    <div class="form-group">
-                        <label>Username:</label>
-                        <input type="text" id="vulnUsername" placeholder='Thử: {"$ne": null}'>
-                    </div>
-                    <div class="form-group">
-                        <label>Password:</label>
-                        <input type="password" id="vulnPassword" placeholder='Thử: {"$ne": null}'>
-                    </div>
-                    <button type="submit">🚀 Login (Vulnerable)</button>
-                </form>
-                <div id="vulnerableResult" class="result"></div>
-            </div>
-
-            <!-- SECURE LOGIN -->
-            <div class="card secure">
-                <h2>
-                    <span>🔒 Secure Login</span>
-                    <span class="badge badge-success">BẢO MẬT</span>
-                </h2>
-                <form id="secureLoginForm">
-                    <div class="form-group">
-                        <label>Username:</label>
-                        <input type="text" id="secureUsername" placeholder="admin">
-                    </div>
-                    <div class="form-group">
-                        <label>Password:</label>
-                        <input type="password" id="securePassword" placeholder="Admin@123">
-                    </div>
-                    <button type="submit">✅ Login (Secure)</button>
-                </form>
-                <div id="secureResult" class="result"></div>
-            </div>
-
-            <!-- VULNERABLE SEARCH -->
-            <div class="card vulnerable">
-                <h2>
-                    <span>🔍 Vulnerable Search</span>
-                    <span class="badge badge-danger">VULNERABLE</span>
-                </h2>
-                <form id="searchForm">
-                    <div class="form-group">
-                        <label>Tìm kiếm người dùng:</label>
-                        <input type="text" id="searchTerm" placeholder='Nhập tên người dùng để tìm kiếm...'>
-                    </div>
-                    <button type="submit">🔎 Tìm kiếm</button>
-                </form>
-                <div id="searchResult" class="result"></div>
-                <div id="attackDetected" class="attack-alert" style="display:none">
-                    <span class="attack-icon">⚠️</span>
-                    <div class="attack-message">
-                        <strong>Phát hiện tấn công!</strong>
-                        <p id="attackType"></p>
+                <div class="form-group">
+                    <label>Password:</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" placeholder='Enter password or JSON payload' required>
+                        <button type="button" class="toggle-password" onclick="togglePassword()">👁️</button>
                     </div>
                 </div>
-            </div>
+                <button type="submit" id="loginBtn">Login</button>
+            </form>
 
-            <!-- SECURE SEARCH -->
-            <div class="card secure">
-                <h2>
-                    <span>🔍 Secure Search</span>
-                    <span class="badge badge-success">PROTECTED</span>
-                </h2>
-                <form id="secureSearchForm">
-                    <div class="form-group">
-                        <label>Tìm kiếm an toàn:</label>
-                        <input type="text" id="secureSearchTerm" placeholder="Nhập từ khóa tìm kiếm...">
-                    </div>
-                    <button type="submit">✅ Tìm kiếm (An toàn)</button>
-                </form>
-                <div id="secureSearchResult" class="result"></div>
-            </div>
-        </div>
-
-        <!-- VALID CREDENTIALS -->
-        <div class="card">
-            <h2>📋 Valid Credentials (For Testing)</h2>
-            <div class="user-info">
-                <p><strong>Username:</strong> admin | <strong>Password:</strong> Admin@123 | <strong>Role:</strong> Admin</p>
-                <p><strong>Username:</strong> john_doe | <strong>Password:</strong> John123! | <strong>Role:</strong> User</p>
-                <p><strong>Username:</strong> jane_smith | <strong>Password:</strong> Jane@456 | <strong>Role:</strong> User</p>
-                <p><strong>Username:</strong> bob_wilson | <strong>Password:</strong> Bob#789 | <strong>Role:</strong> Manager</p>
-                <p><strong>Username:</strong> alice_brown | <strong>Password:</strong> Alice$321 | <strong>Role:</strong> User</p>
-            </div>
+            <div class="result-box" id="loginResult"></div>
         </div>
     </div>
 
-    <script>
-        // Switch tabs
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(tabId).classList.add('active');
-        }
-
-        // Copy to clipboard
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                alert('✅ Đã copy payload: ' + text);
-            });
-        }
-
-        // Show result
-        function showResult(elementId, success, message, data = null) {
-            const resultDiv = document.getElementById(elementId);
-            resultDiv.className = `result ${success ? 'success' : 'error'} show`;
-            
-            let html = `<strong>${success ? '✅ Thành công!' : '❌ Thất bại!'}</strong><p>${message}</p>`;
-            
-            if (data && data.user) {
-                html += `
-                    <div class="user-info">
-                        <h4>📊 Thông tin User (Data Leaked!):</h4>
-                        <p><strong>Username:</strong> ${data.user.username}</p>
-                        <p><strong>Email:</strong> ${data.user.email}</p>
-                        <p><strong>Role:</strong> ${data.user.role}</p>
-                        <p><strong>Department:</strong> ${data.user.department}</p>
-                        <p><strong>💰 Salary:</strong> ${data.user.salary}</p>
-                        <p><strong>🔐 SSN:</strong> ${data.user.ssn}</p>
-                    </div>
-                `;
-            }
-            
-            if (data && data.results) {
-                html += `<div class="user-info"><h4>🔍 Kết quả tìm kiếm (${data.results.length} users):</h4>`;
-                data.results.forEach(user => {
-                    html += `<p>• ${user.username} (${user.email}) - ${user.role}</p>`;
-                });
-                html += `</div>`;
-            }
-            
-            resultDiv.innerHTML = html;
-        }
-
-        // Vulnerable Login
-        document.getElementById('vulnerableLoginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            let username = document.getElementById('vulnUsername').value;
-            let password = document.getElementById('vulnPassword').value;
-            
-            // Try to parse as JSON (for payload injection)
-            try {
-                username = JSON.parse(username);
-            } catch (e) {
-                // If not JSON, keep as string
-            }
-            
-            try {
-                password = JSON.parse(password);
-            } catch (e) {
-                // If not JSON, keep as string
-            }
-            
-            try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                
-                const data = await response.json();
-                showResult('vulnerableResult', data.success, data.message, data);
-            } catch (error) {
-                showResult('vulnerableResult', false, 'Lỗi: ' + error.message);
-            }
-        });
-
-        // Secure Login
-        document.getElementById('secureLoginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const username = document.getElementById('secureUsername').value;
-            const password = document.getElementById('securePassword').value;
-            
-            try {
-                const response = await fetch('/api/secure-login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                
-                const data = await response.json();
-                showResult('secureResult', data.success, data.message, data);
-            } catch (error) {
-                showResult('secureResult', false, 'Lỗi: ' + error.message);
-            }
-        });
-
-        // Vulnerable Search
-        document.getElementById('searchForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const searchTerm = document.getElementById('searchTerm').value.trim();
-            const searchButton = e.target.querySelector('button');
-
-            // Nếu URL có query params, xóa đi
-            const url = window.location.pathname;
-            window.history.replaceState({}, document.title, url);
-            
-            try {
-                // Disable button during search
-                searchButton.disabled = true;
-
-                const response = await fetch('/api/search', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ searchTerm })
-                });
-                
-                const data = await response.json();
-                showResult('searchResult', data.success, `Tìm thấy ${data.results?.length || 0} kết quả`, data);
-            } catch (error) {
-                showResult('searchResult', false, 'Lỗi: ' + error.message);
-            } finally {
-                // Re-enable button
-                searchButton.disabled = false;
-            }
-        });
-
-        // Secure Search
-        document.getElementById('secureSearchForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const searchTerm = document.getElementById('secureSearchTerm').value.trim();
-            const searchButton = e.target.querySelector('button');
-            
-            try {
-                // Disable button during search
-                searchButton.disabled = true;
-
-                const response = await fetch('/api/secure/search', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ searchTerm })
-                });
-                
-                const data = await response.json();
-                showResult('secureSearchResult', data.success, `Tìm thấy ${data.users?.length || 0} kết quả`, data);
-            } catch (error) {
-                showResult('secureSearchResult', false, 'Lỗi: ' + error.message);
-            } finally {
-                // Re-enable button
-                searchButton.disabled = false;
-            }
-        });
-    </script>
+    <script src="js/login.js"></script>
 </body>
 </html>
