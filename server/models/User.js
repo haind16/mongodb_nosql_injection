@@ -24,27 +24,6 @@ class User {
         }
     }
 
-    // VULNERABLE: Regex injection
-    static async searchByUsername(searchTerm) {
-        try {
-            const collection = this.getCollection();
-            
-            // ⚠️ VULNERABLE CODE - Attack 2: Regex Injection
-            // User input trực tiếp làm regex pattern
-            const users = await collection.find({ 
-                username: { $regex: searchTerm }  // ❌ Không escape special chars
-            })
-            .project({ password: 0 })  // Ẩn password (nhưng vẫn có email và role)
-            .limit(50)
-            .toArray();
-            
-            return users;
-        } catch (error) {
-            console.error('Error in searchByUsername:', error);
-            return [];
-        }
-    }
-
     // VULNERABLE: $where injection - Search accounts by balance
     static async filterByCondition(whereClause) {
         try {
@@ -64,24 +43,6 @@ class User {
         } catch (error) {
             console.error('Error in filterByCondition:', error);
             return [];
-        }
-    }
-
-    static async findById(userId) {
-        try {
-            const collection = this.getCollection();
-            const { ObjectId } = require('mongodb');
-            
-            const user = await collection.findOne({ 
-                _id: new ObjectId(userId) 
-            }, {
-                projection: { password: 0 }
-            });
-            
-            return user;
-        } catch (error) {
-            console.error('Error in findById:', error);
-            return null;
         }
     }
 

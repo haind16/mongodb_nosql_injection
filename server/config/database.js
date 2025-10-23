@@ -9,7 +9,7 @@ let db;
 async function connectDB() {
     try {
         await client.connect();
-        console.log('✅ Connected to MongoDB successfully!');
+        console.log('Connected to MongoDB successfully!');
         
         db = client.db('nosql_demo');
         
@@ -18,7 +18,7 @@ async function connectDB() {
         
         return db;
     } catch (error) {
-        console.error('❌ MongoDB connection error:', error);
+        console.error('MongoDB connection error:', error);
         process.exit(1);
     }
 }
@@ -31,7 +31,6 @@ async function initializeData() {
         
         // Nếu chưa có data, insert mẫu
         if (count === 0) {
-            console.log('📝 Initializing Banking App sample data...');
             
             // Users với banking info
             const sampleUsers = [
@@ -50,35 +49,11 @@ async function initializeData() {
                     role: 'customer',
                     fullName: 'John Doe',
                     createdAt: new Date()
-                },
-                {
-                    username: 'alice_smith',
-                    password: 'alice456',
-                    email: 'alice.smith@email.com',
-                    role: 'customer',
-                    fullName: 'Alice Smith',
-                    createdAt: new Date()
-                },
-                {
-                    username: 'bob_wilson',
-                    password: 'bob789',
-                    email: 'bob.wilson@email.com',
-                    role: 'customer',
-                    fullName: 'Bob Wilson',
-                    createdAt: new Date()
-                },
-                {
-                    username: 'carol_brown',
-                    password: 'carol999',
-                    email: 'carol.brown@email.com',
-                    role: 'customer',
-                    fullName: 'Carol Brown',
-                    createdAt: new Date()
                 }
             ];
             
             await usersCollection.insertMany(sampleUsers);
-            console.log('✅ Sample users created!');
+            console.log('Sample users created!');
             
             // Banking accounts với sensitive data
             const sampleAccounts = [
@@ -145,16 +120,14 @@ async function initializeData() {
             ];
             
             await accountsCollection.insertMany(sampleAccounts);
-            console.log('✅ Banking accounts created!');
             
             // Tạo collection comments
             await db.createCollection('comments');
-            console.log('✅ Comments collection created!');
         } else {
-            console.log('✅ Database already initialized');
+            console.log('Database already initialized');
         }
     } catch (error) {
-        console.error('❌ Error initializing data:', error);
+        console.error('Error initializing data:', error);
     }
 }
 

@@ -6,7 +6,7 @@ async function resetDatabase() {
 
     try {
         await client.connect();
-        console.log('✅ Connected to MongoDB');
+        console.log('Connected to MongoDB');
 
         const db = client.db('nosql_demo');
 
@@ -15,9 +15,9 @@ async function resetDatabase() {
             await db.collection('accounts').deleteMany({});
             await db.collection('users').deleteMany({});
             await db.collection('comments').deleteMany({});
-            console.log('✅ Cleared existing data');
+            console.log('Cleared existing data');
         } catch (err) {
-            console.log('ℹ️ Collections may not exist yet');
+            console.log('Collections may not exist yet');
         }
 
         // Insert sample users
@@ -37,35 +37,11 @@ async function resetDatabase() {
                 role: 'customer',
                 fullName: 'John Doe',
                 createdAt: new Date()
-            },
-            {
-                username: 'alice_smith',
-                password: 'alice456',
-                email: 'alice.smith@email.com',
-                role: 'customer',
-                fullName: 'Alice Smith',
-                createdAt: new Date()
-            },
-            {
-                username: 'bob_wilson',
-                password: 'bob789',
-                email: 'bob.wilson@email.com',
-                role: 'customer',
-                fullName: 'Bob Wilson',
-                createdAt: new Date()
-            },
-            {
-                username: 'carol_brown',
-                password: 'carol999',
-                email: 'carol.brown@email.com',
-                role: 'customer',
-                fullName: 'Carol Brown',
-                createdAt: new Date()
             }
         ];
 
         await db.collection('users').insertMany(sampleUsers);
-        console.log('✅ Inserted 5 users');
+        console.log('Inserted users');
 
         // Insert sample accounts
         const sampleAccounts = [
@@ -132,16 +108,16 @@ async function resetDatabase() {
         ];
 
         await db.collection('accounts').insertMany(sampleAccounts);
-        console.log('✅ Inserted 5 accounts');
+        console.log('Inserted 5 accounts');
 
-        console.log('\n✅ Database reset successfully!');
+        console.log('\nDatabase reset successfully!');
         console.log('\nAccounts:');
         sampleAccounts.forEach(acc => {
             console.log(`  • ${acc.accountNumber} - ${acc.accountHolder} ($${acc.balance})`);
         });
 
     } catch (error) {
-        console.error('❌ Error:', error);
+        console.error('Error:', error);
     } finally {
         await client.close();
     }

@@ -37,18 +37,18 @@ async function startServer() {
         // Start Express server
         app.listen(PORT, () => {
             console.log('');
-            console.log('🚀 ================================');
-            console.log('🚀 Server is running!');
-            console.log('🚀 ================================');
-            console.log(`🌐 URL: http://localhost:${PORT}`);
-            console.log(`📦 Environment: ${process.env.NODE_ENV || 'development'}`);
-            console.log('⚠️  WARNING: This is a VULNERABLE demo server!');
-            console.log('⚠️  Do NOT use in production!');
-            console.log('🚀 ================================');
+            console.log('================================');
+            console.log('Server is running!');
+            console.log('================================');
+            console.log(`URL: http://localhost:${PORT}`);
+            console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+            console.log('   WARNING: This is a VULNERABLE demo server!');
+            console.log('   Do NOT use in production!');
+            console.log('================================');
             console.log('');
         });
     } catch (error) {
-        console.error('❌ Failed to start server:', error);
+        console.error('Failed to start server:', error);
         process.exit(1);
     }
 }

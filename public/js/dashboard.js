@@ -6,50 +6,17 @@ window.addEventListener('DOMContentLoaded', () => {
     const userStr = sessionStorage.getItem('currentUser');
     
     if (!userStr) {
-        alert('⚠️ Please login first!');
+        alert('Please login first!');
         window.location.href = 'index.html';
         return;
     }
     
     const user = JSON.parse(userStr);
     document.getElementById('currentUser').textContent = user.username;
-    document.getElementById('currentRole').textContent = user.role.toUpperCase();
     
     // Load comments for XSS tab
     loadComments();
-    
-    console.log('═══════════════════════════════════════');
-    console.log('🏦 Banking Dashboard Loaded');
-    console.log('═══════════════════════════════════════');
-    console.log('User:', user.username);
-    console.log('Role:', user.role);
-    console.log('═══════════════════════════════════════');
 });
-
-// Tab Switching Function
-function showTab(index) {
-    // Hide all attack sections
-    document.getElementById('attack2').style.display = 'none';
-    document.getElementById('attack3').style.display = 'none';
-    document.getElementById('attack4').style.display = 'none';
-    
-    // Remove active class from all buttons
-    const buttons = document.querySelectorAll('.tab-btn');
-    buttons.forEach(btn => btn.classList.remove('active'));
-    
-    // Show selected section and activate button
-    if (index === 0) {
-        document.getElementById('attack2').style.display = 'block';
-        buttons[0].classList.add('active');
-    } else if (index === 1) {
-        document.getElementById('attack3').style.display = 'block';
-        buttons[1].classList.add('active');
-    } else if (index === 2) {
-        document.getElementById('attack4').style.display = 'block';
-        buttons[2].classList.add('active');
-        loadComments(); // Reload comments when switching to XSS tab
-    }
-}
 
 // Quick Attack Helper Function
 function quickAttack(pattern) {
@@ -67,8 +34,6 @@ document.getElementById('regexForm').addEventListener('submit', async (e) => {
     const regexPattern = document.getElementById('regexInput').value;
     const resultBox = document.getElementById('regexResult');
 
-    console.log('🔍 Searching accounts with pattern:', regexPattern);
-
     try {
         const response = await fetch(`${API_URL}/api/search-account?accountNumber=${encodeURIComponent(regexPattern)}`);
         const data = await response.json();
@@ -76,17 +41,8 @@ document.getElementById('regexForm').addEventListener('submit', async (e) => {
         if (response.ok && data.success) {
             resultBox.className = 'result-box show';
 
-            let accountsList = 'No accounts found';
-
-            if (data.accounts.length > 0) {
-                accountsList = data.accounts.map((acc, index) => {
-                    return `${index + 1}. ${acc.accountNumber} - ${acc.accountHolder} ($${acc.balance.toLocaleString('en-US', {minimumFractionDigits: 2})})`;
-                }).join('\n');
-            }
-
             resultBox.innerHTML = `
                 <strong>Found ${data.count} account(s)</strong>
-                <div class="result-content">${accountsList}</div>
             `;
 
         } else {
@@ -116,8 +72,6 @@ document.getElementById('whereForm').addEventListener('submit', async (e) => {
     // Build $where clause: this.accountHolder == 'INPUT'
     // If input contains injection chars like ', it will break the query
     const whereClause = `this.accountHolder == '${searchInput}'`;
-
-    console.log('⚡ Executing $where clause:', whereClause);
 
     try {
         const response = await fetch(`${API_URL}/api/filter`, {
@@ -161,7 +115,6 @@ document.getElementById('whereForm').addEventListener('submit', async (e) => {
 
 // Quick attack function for $where injection
 function quickWhereAttack(payload) {
-    console.log('🎯 Quick attack payload:', payload);
     document.getElementById('whereInput').value = payload;
     // Trigger form submit
     const form = document.getElementById('whereForm');
@@ -193,8 +146,6 @@ document.getElementById('xssForm').addEventListener('submit', async (e) => {
     const resultBox = document.getElementById('xssResult');
     const user = JSON.parse(sessionStorage.getItem('currentUser'));
     
-    console.log('💬 Saving comment from:', user.username);
-    
     try {
         const response = await fetch(`${API_URL}/api/comments`, {
             method: 'POST',
@@ -212,9 +163,7 @@ document.getElementById('xssForm').addEventListener('submit', async (e) => {
         if (response.ok && data.success) {
             resultBox.className = 'result-box show';
             resultBox.innerHTML = `
-                <strong>✅ Comment Saved!</strong>
-                <div class="result-content">💾 Payload stored in MongoDB
-⏳ Loading comments...</div>
+                <strong>Comment Saved!</strong>
             `;
 
             // Reload comments to trigger XSS
@@ -320,7 +269,6 @@ function escapeHtml(text) {
 
 // Logout Function
 function logout() {
-    console.log('🚪 Logging out...');
     sessionStorage.removeItem('currentUser');
     window.location.href = 'index.html';
 }

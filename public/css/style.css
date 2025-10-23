@@ -18,8 +18,8 @@ body {
 /* Container */
 .container {
     background: white;
-    border-radius: 15px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    border-radius: 4px;
+    box-shadow: 0 20px 20px rgba(0,0,0,0.1);
     max-width: 950px;
     width: 100%;
     overflow: hidden;
@@ -39,7 +39,7 @@ body {
 
 /* Header */
 .header {
-    background: #1a1a1a;
+    background: #000;
     color: white;
     padding: 35px 30px;
     text-align: center;
@@ -89,20 +89,13 @@ label {
     font-weight: 700;
 }
 
-.form-hint {
-    color: #666;
-    font-size: 12px;
-    display: block;
-    margin-top: 5px;
-}
-
 input[type="text"],
 input[type="password"],
 textarea {
     width: 100%;
     padding: 13px 15px;
     border: 2px solid #e0e0e0;
-    border-radius: 8px;
+    border-radius: 4px;
     font-size: 14px;
     font-family: inherit;
     transition: all 0.3s ease;
@@ -132,6 +125,17 @@ textarea {
     box-shadow: none;
     width: auto !important;
     transition: transform 0.2s ease;
+    color: #666
+}
+
+.icon{ 
+    display:block; 
+    width: 20px;
+    height: 20px;
+}
+
+.hidden{ 
+    display:none; 
 }
 
 .toggle-password:hover {
@@ -162,20 +166,18 @@ textarea {
 button {
     width: 100%;
     padding: 15px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #000;
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 4px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    transition: all 0.2s ease;
 }
 
 button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    transform: translateY(-1px);
 }
 
 button:active {
@@ -193,7 +195,7 @@ button:disabled {
     margin-top: 20px;
     padding: 15px;
     background: #f8f9fa;
-    border-radius: 8px;
+    border-radius: 4px;
 }
 
 .quick-payloads-title {
@@ -215,29 +217,10 @@ button:disabled {
     padding: 10px 18px !important;
     font-size: 13px !important;
     font-weight: 600;
-    border-radius: 6px;
+    border-radius: 4px;
     flex: 1;
     min-width: 140px;
-}
-
-.quick-btn.danger {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
-}
-
-.quick-btn.warning {
-    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
-    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
-}
-
-.quick-btn.success {
-    background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
-    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-}
-
-.quick-btn.info {
-    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
-    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+    background: #2F4F4F;
 }
 
 /* Hint Box */
@@ -246,7 +229,7 @@ button:disabled {
     border-left: 3px solid #1a1a1a;
     padding: 15px 15px;
     margin: 20px 0;
-    border-radius: 6px;
+    border-radius: 4px;
     border: 1px solid #d0d0d0;
 }
 
@@ -269,10 +252,11 @@ button:disabled {
 
 /* Attack Sections */
 .attack-section {
+    display: block;
     background: white;
     padding: 28px;
     margin-bottom: 30px;
-    border-radius: 12px;
+    border-radius: 4px;
     border: 1px solid #e0e0e0;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
@@ -288,7 +272,7 @@ button:disabled {
 .result-box {
     background: #f0f0f0;
     border: 1px solid #d0d0d0;
-    border-radius: 8px;
+    border-radius: 4px;
     padding: 15px;
     margin-top: 20px;
     display: none;
@@ -319,8 +303,7 @@ button:disabled {
 .result-content {
     background: white;
     padding: 12px;
-    border-radius: 6px;
-    font-family: 'Courier New', monospace;
+    border-radius: 4px;
     font-size: 13px;
     line-height: 1.5;
     white-space: pre-wrap;
@@ -343,7 +326,7 @@ button:disabled {
     background: #f5f5f5;
     border-left: 3px solid #1a1a1a;
     padding: 12px 15px;
-    border-radius: 6px;
+    border-radius: 4px;
     font-size: 13px;
     line-height: 1.6;
     border: 1px solid #d0d0d0;
@@ -410,7 +393,7 @@ button:disabled {
 .comments-display {
     background: white;
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 4px;
     border: 2px solid #e9ecef;
     min-height: 120px;
     max-height: 450px;
@@ -421,7 +404,7 @@ button:disabled {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     padding: 15px;
     margin-bottom: 12px;
-    border-radius: 8px;
+    border-radius: 4px;
     border-left: 4px solid #667eea;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     transition: transform 0.2s ease;
@@ -472,7 +455,6 @@ button:disabled {
     width: auto !important;
     padding: 10px 24px !important;
     font-size: 14px !important;
-    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
 }
 
 .logout-btn {
@@ -480,7 +462,6 @@ button:disabled {
     width: auto !important;
     padding: 12px 32px !important;
     margin-top: 30px;
-    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
 }
 
 /* Animations */
@@ -504,13 +485,13 @@ button:disabled {
 .result-content::-webkit-scrollbar-track,
 .comments-display::-webkit-scrollbar-track {
     background: #f1f1f1;
-    border-radius: 10px;
+    border-radius: 4px;
 }
 
 .result-content::-webkit-scrollbar-thumb,
 .comments-display::-webkit-scrollbar-thumb {
     background: #667eea;
-    border-radius: 10px;
+    border-radius: 4px;
 }
 
 .result-content::-webkit-scrollbar-thumb:hover,

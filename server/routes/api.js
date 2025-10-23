@@ -8,7 +8,7 @@ let Account;
 try {
     Account = require('../models/Account');
 } catch (err) {
-    console.warn('⚠️ Account model not found, some features may not work');
+    console.warn('  Account model not found, some features may not work');
 }
 
 // VULNERABLE: Regex Injection - Banking App Scenario
@@ -23,20 +23,20 @@ router.get('/search-account', async (req, res) => {
 
         const { accountNumber } = req.query;
         
-        console.log('🏦 Account search request:', accountNumber);
+        console.log('Account search request:', accountNumber);
         
         // ⚠️ VULNERABLE: User input trực tiếp làm regex
         // Simulating: Bank employee searching for account
         const accounts = await Account.searchByAccountNumber(accountNumber);
         
-        console.log(`📊 Found ${accounts.length} accounts`);
+        console.log(`   Found ${accounts.length} accounts`);
         
         // Build vulnerability warning
         let warning = '';
         if (accountNumber === '.*') {
-            warning = '⚠️ CRITICAL: Extracted ALL account numbers!';
+            warning = 'CRITICAL: Extracted ALL account numbers!';
         } else if (accountNumber.startsWith('^')) {
-            warning = '⚠️ WARNING: Pattern matching can enumerate accounts!';
+            warning = 'WARNING: Pattern matching can enumerate accounts!';
         }
         
         res.json({
@@ -57,7 +57,7 @@ router.get('/search-account', async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('❌ Account search error:', error);
+        console.error('Account search error:', error);
         res.status(500).json({
             success: false,
             message: 'Search error',
@@ -71,12 +71,12 @@ router.post('/filter', async (req, res) => {
     try {
         const { condition } = req.body;
 
-        console.log('🎯 Filter request:', condition);
+        console.log('Filter request:', condition);
 
         // ⚠️ VULNERABLE: Thực thi JavaScript từ user để tìm accounts
         const accounts = await User.filterByCondition(condition);
 
-        console.log(`📊 Matched ${accounts.length} accounts`);
+        console.log(`   Matched ${accounts.length} accounts`);
 
         res.json({
             success: true,
@@ -100,13 +100,13 @@ router.post('/comments', async (req, res) => {
     try {
         const { username, content } = req.body;
         
-        console.log('💬 New comment from:', username);
+        console.log('New comment from:', username);
         
         // ⚠️ VULNERABLE: Không sanitize content
         const comment = await Comment.create(username, content);
         
         if (comment) {
-            console.log('✅ Comment saved (may contain XSS payload)');
+            console.log('Comment saved (may contain XSS payload)');
             res.json({
                 success: true,
                 message: 'Comment saved',
@@ -120,7 +120,7 @@ router.post('/comments', async (req, res) => {
             });
         }
     } catch (error) {
-        console.error('❌ Comment error:', error);
+        console.error('Comment error:', error);
         res.status(500).json({
             success: false,
             message: 'Error saving comment',
@@ -159,7 +159,7 @@ router.delete('/comments', async (req, res) => {
             message: 'All comments deleted'
         });
     } catch (error) {
-        console.error('❌ Delete comments error:', error);
+        console.error('Delete comments error:', error);
         res.status(500).json({
             success: false,
             message: 'Error deleting comments',
@@ -178,7 +178,7 @@ router.get('/users', async (req, res) => {
             users: users
         });
     } catch (error) {
-        console.error('❌ Get users error:', error);
+        console.error('Get users error:', error);
         res.status(500).json({
             success: false,
             message: 'Error fetching users',
@@ -204,7 +204,7 @@ router.get('/accounts', async (req, res) => {
             accounts: accounts
         });
     } catch (error) {
-        console.error('❌ Get accounts error:', error);
+        console.error('Get accounts error:', error);
         res.status(500).json({
             success: false,
             message: 'Error fetching accounts',

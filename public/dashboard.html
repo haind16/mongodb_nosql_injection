@@ -3,33 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Banking System - Dashboard</title>
+    <title>System - Dashboard</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Banking System Dashboard</h1>
+            <h1>System Dashboard</h1>
             <p>NoSQL Injection Vulnerability Demo</p>
         </div>
 
         <div class="content">
             <div class="user-header">
                 <div class="user-info">
-                    <strong>Logged in as:</strong> <span id="currentUser">Guest</span> | <span id="currentRole">Customer</span>
+                    <strong>Logged in as:</strong> <span id="currentUser">Guest</span>
                 </div>
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
 
-            <div class="tab-buttons">
-                <button class="tab-btn active" onclick="showTab(0)">Account Search</button>
-                <button class="tab-btn" onclick="showTab(1)">User Filter</button>
-                <button class="tab-btn" onclick="showTab(2)">Comments</button>
-            </div>
-
-            <!-- Attack 2: Banking Regex Injection -->
+            <!-- Attack 2: Regex Injection -->
             <div class="attack-section" id="attack2">
-                <h3>Attack 2: Regex Injection</h3>
+                <h3>Regex Injection</h3>
 
                 <div class="hint-box">
                     <strong>Description:</strong> Search accounts using regex patterns<br><br>
@@ -48,9 +42,6 @@
                     <div class="form-group">
                         <label>Search Account Number:</label>
                         <input type="text" id="regexInput" placeholder="Enter account number or regex pattern" value="^1234.*">
-                        <small class="form-hint">
-                            Examples: "1234567890" (exact) or ".*" (all) or "^1234.*" (prefix)
-                        </small>
                     </div>
                     <button type="submit">Search</button>
                 </form>
@@ -61,19 +52,19 @@
                 <div class="quick-payloads-box">
                     <strong class="quick-payloads-title">Quick Payloads:</strong>
                     <div class="quick-payloads-container">
-                        <button onclick="quickAttack('.*')" class="quick-btn danger">
+                        <button onclick="quickAttack('.*')" class="quick-btn">
                             Extract ALL
                         </button>
-                        <button onclick="quickAttack('^1234.*')" class="quick-btn warning">
+                        <button onclick="quickAttack('^1234.*')" class="quick-btn">
                             Prefix: 1234*
                         </button>
-                        <button onclick="quickAttack('^.{10}$')" class="quick-btn warning">
+                        <button onclick="quickAttack('^.{10}$')" class="quick-btn">
                             10 Digits
                         </button>
-                        <button onclick="quickAttack('^1234567890$')" class="quick-btn success">
+                        <button onclick="quickAttack('^1234567890$')" class="quick-btn">
                             Exact Match
                         </button>
-                        <button onclick="quickAttack('^123[4-8].*')" class="quick-btn info">
+                        <button onclick="quickAttack('^123[4-8].*')" class="quick-btn">
                             Pattern Range
                         </button>
                     </div>
@@ -81,8 +72,8 @@
             </div>
 
             <!-- Attack 3: $where Injection -->
-            <div class="attack-section" id="attack3" style="display: none;">
-                <h3>Attack 3: $where Injection</h3>
+            <div class="attack-section" id="attack3">
+                <h3>$where Injection</h3>
 
                 <div class="hint-box">
                     <strong>Description:</strong> Search accounts by name with JavaScript injection<br><br>
@@ -95,18 +86,12 @@
                     • <code>' || '1'=='1</code> - Get ALL accounts<br>
                     • <code>' || (function(){ return true; })() || '</code> - Function bypass<br>
                     • <code>' || this.balance > 100000 || '</code> - Balance > $100K<br>
-                    • <code>' || this.balance >= 250000 || '</code> - Premium accounts<br>
-                    • <code>' || this.balance > 50000 && this.balance < 200000 || '</code> - Range $50K-$200K<br>
-                    • <code>' || this.balance < 50000 || '</code> - Low balance accounts
                 </div>
 
                 <form id="whereForm">
                     <div class="form-group">
                         <label>Search Account Holder:</label>
                         <input type="text" id="whereInput" placeholder="Enter account holder name or injection payload" value="John Doe">
-                        <small class="form-hint">
-                            Normal: "John Doe" | Injection: "' || '1'=='1" or "' || this.balance > 100000 || '"
-                        </small>
                     </div>
                     <button type="submit">Search</button>
                 </form>
@@ -117,37 +102,25 @@
                 <div class="quick-payloads-box">
                     <strong class="quick-payloads-title">Quick Payloads:</strong>
                     <div class="quick-payloads-container">
-                        <button type="button" class="quick-btn success" data-payload="John Doe">
+                        <button type="button" class="quick-btn" data-payload="John Doe">
                             Normal Search
                         </button>
-                        <button type="button" class="quick-btn danger" data-payload="' || '1'=='1">
+                        <button type="button" class="quick-btn" data-payload="' || '1'=='1">
                             Bypass All
                         </button>
-                        <button type="button" class="quick-btn danger" data-payload="' || (function(){ return true; })() || '">
+                        <button type="button" class="quick-btn" data-payload="' || (function(){ return true; })() || '">
                             Function Bypass
                         </button>
-                        <button type="button" class="quick-btn info" data-payload="' || this.balance > 100000 || '">
+                        <button type="button" class="quick-btn" data-payload="' || this.balance > 100000 || '">
                             Balance > 100K
-                        </button>
-                        <button type="button" class="quick-btn danger" data-payload="' || this.balance >= 250000 || '">
-                            Premium >= 250K
-                        </button>
-                        <button type="button" class="quick-btn info" data-payload="' || this.balance > 50000 && this.balance < 200000 || '">
-                            Range 50K-200K
-                        </button>
-                        <button type="button" class="quick-btn warning" data-payload="' || this.balance < 50000 || '">
-                            Low Balance
-                        </button>
-                        <button type="button" class="quick-btn success" data-payload="Alice Smith">
-                            Alice Smith
                         </button>
                     </div>
                 </div>
             </div>
 
             <!-- Attack 4: Stored XSS -->
-            <div class="attack-section" id="attack4" style="display: none;">
-                <h3>Attack 4: Stored XSS</h3>
+            <div class="attack-section" id="attack4">
+                <h3>Stored XSS</h3>
 
                 <div class="hint-box">
                     <strong>Description:</strong> Post comments that execute JavaScript<br><br>
@@ -163,9 +136,6 @@
                     <div class="form-group">
                         <label>Post Comment:</label>
                         <textarea id="xssInput" rows="4" placeholder="Enter comment or XSS payload"><iframe src="javascript:alert('XSS')"></iframe></textarea>
-                        <small class="form-hint">
-                            Content will be stored and rendered without escaping
-                        </small>
                     </div>
                     <button type="submit">Save Comment</button>
                 </form>

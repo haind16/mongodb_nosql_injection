@@ -5,7 +5,7 @@ const API_URL = 'http://localhost:3000';
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const username = document.getElementById('username').value.trim();
+    const usernameInput = document.getElementById('username').value.trim();
     const passwordInput = document.getElementById('password').value.trim();
     const resultBox = document.getElementById('loginResult');
     const loginBtn = document.getElementById('loginBtn');
@@ -17,25 +17,16 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     try {
         // Parse password - can be string or JSON object
         let password = passwordInput;
-        let isNoSQLInjection = false;
+        let username = usernameInput;
         
         // Check if input is JSON object (NoSQL injection attempt)
-        if (passwordInput.startsWith('{')) {
-            try {
-                password = JSON.parse(passwordInput);
-                isNoSQLInjection = true;
-                console.log('🔓 NoSQL injection payload detected:', password);
-            } catch (err) {
-                console.log('❌ Invalid JSON format, treating as plain string');
-                // Keep as string if JSON parse fails
-            }
-        }
+        try { 
+            username = JSON.parse(username); 
+        } catch(e) {}
+        try { 
+            password = JSON.parse(password); 
+        } catch(e) {}
         
-        console.log('🔐 Login attempt:', {
-            username: username,
-            passwordType: typeof password,
-            isInjection: isNoSQLInjection
-        });
         
         // Send login request
         const response = await fetch(`${API_URL}/auth/login`, {
@@ -57,7 +48,6 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
             resultBox.innerHTML = `
                 <strong>Login successful</strong>
-                <div class="result-content">Redirecting to dashboard...</div>
             `;
 
             // Store user info in sessionStorage
@@ -96,40 +86,19 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     }
 });
 
-// Quick fill payloads (helper function for testing)
-function fillPayload(payload) {
-    document.getElementById('password').value = payload;
-}
-
 // Toggle Password Visibility
 function togglePassword() {
     const passwordInput = document.getElementById('password');
-    const toggleBtn = document.querySelector('.toggle-password');
+    const btn = document.querySelector('.toggle-password');
+    const eye = btn.querySelector('.icon-eye');
+    const eyeSlash = btn.querySelector('.icon-eye-slash');
 
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        toggleBtn.textContent = '🙈';
-    } else {
-        passwordInput.type = 'password';
-        toggleBtn.textContent = '👁️';
-    }
+    const show = passwordInput.type === 'password';
+    passwordInput.type = show ? 'text' : 'password';
+
+    eye.classList.toggle('hidden', !show);       
+    eyeSlash.classList.toggle('hidden', show);   
+
+    btn.setAttribute('aria-pressed', String(show));
+    btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
 }
-
-// Initialize on page load
-window.addEventListener('DOMContentLoaded', () => {
-    console.log('═══════════════════════════════════════');
-    console.log('🏦 Banking Security Demo - Login Page');
-    console.log('═══════════════════════════════════════');
-    console.log('');
-    console.log('💡 Test NoSQL Injection Payloads:');
-    console.log('   1. {"$ne": ""}           - Not equal to empty');
-    console.log('   2. {"$gt": ""}           - Greater than empty');
-    console.log('   3. {"$exists": true}     - Field exists');
-    console.log('   4. {"$regex": ".*"}      - Match anything');
-    console.log('');
-    console.log('🔐 Valid Credentials:');
-    console.log('   • admin / admin123');
-    console.log('   • john_doe / pass123');
-    console.log('');
-    console.log('═══════════════════════════════════════');
-});
