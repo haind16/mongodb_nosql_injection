@@ -32,28 +32,6 @@
                 </form>
 
                 <div class="result-box" id="regexResult"></div>
-
-                <!-- Quick attack buttons -->
-                <div class="quick-payloads-box">
-                    <strong class="quick-payloads-title">Quick Payloads:</strong>
-                    <div class="quick-payloads-container">
-                        <button onclick="quickAttack('.*')" class="quick-btn">
-                            Extract ALL
-                        </button>
-                        <button onclick="quickAttack('^1234.*')" class="quick-btn">
-                            Prefix: 1234*
-                        </button>
-                        <button onclick="quickAttack('^.{10}$')" class="quick-btn">
-                            10 Digits
-                        </button>
-                        <button onclick="quickAttack('^1234567890$')" class="quick-btn">
-                            Exact Match
-                        </button>
-                        <button onclick="quickAttack('^123[4-8].*')" class="quick-btn">
-                            Pattern Range
-                        </button>
-                    </div>
-                </div>
             </div>
 
             <!-- Attack 3: $where Injection -->
@@ -68,25 +46,6 @@
                 </form>
 
                 <div class="result-box" id="whereResult"></div>
-
-                <!-- Quick attack buttons -->
-                <div class="quick-payloads-box">
-                    <strong class="quick-payloads-title">Quick Payloads:</strong>
-                    <div class="quick-payloads-container">
-                        <button type="button" class="quick-btn" data-payload="John Doe">
-                            Normal Search
-                        </button>
-                        <button type="button" class="quick-btn" data-payload="' || '1'=='1">
-                            Bypass All
-                        </button>
-                        <button type="button" class="quick-btn" data-payload="' || (function(){ return true; })() || '">
-                            Function Bypass
-                        </button>
-                        <button type="button" class="quick-btn" data-payload="' || this.balance > 100000 || '">
-                            Balance > 100K
-                        </button>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

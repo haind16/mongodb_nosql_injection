@@ -110,28 +110,6 @@ document.getElementById('whereForm').addEventListener('submit', async (e) => {
     }
 });
 
-// Quick attack function for $where injection
-function quickWhereAttack(payload) {
-    document.getElementById('whereInput').value = payload;
-    // Trigger form submit
-    const form = document.getElementById('whereForm');
-    if (form) {
-        form.dispatchEvent(new Event('submit'));
-    }
-}
-
-// Initialize quick attack buttons
-document.addEventListener('DOMContentLoaded', function() {
-    const quickButtons = document.querySelectorAll('[data-payload]');
-    quickButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const payload = this.getAttribute('data-payload');
-            quickWhereAttack(payload);
-        });
-    });
-});
-
 // Logout Function
 function logout() {
     sessionStorage.removeItem('currentUser');
