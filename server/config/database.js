@@ -121,8 +121,6 @@ async function initializeData() {
             
             await accountsCollection.insertMany(sampleAccounts);
             
-            // Tạo collection comments
-            await db.createCollection('comments');
         } else {
             console.log('Database already initialized');
         }

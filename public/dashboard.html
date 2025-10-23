@@ -9,8 +9,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>System Dashboard</h1>
-            <p>NoSQL Injection Vulnerability Demo</p>
+            <h1>NoSQL Injection Vulnerability Demo</h1>
         </div>
 
         <div class="content">
@@ -23,24 +22,10 @@
 
             <!-- Attack 2: Regex Injection -->
             <div class="attack-section" id="attack2">
-                <h3>Regex Injection</h3>
-
-                <div class="hint-box">
-                    <strong>Description:</strong> Search accounts using regex patterns<br><br>
-
-                    <strong>Normal Search:</strong><br>
-                    • <code>1234567890</code> - Exact account number<br><br>
-
-                    <strong>Regex Injection Payloads:</strong><br>
-                    • <code>.*</code> - Extract ALL accounts<br>
-                    • <code>^1234.*</code> - Find accounts starting with "1234"<br>
-                    • <code>^.{10}$</code> - Find all 10-digit accounts<br>
-                    • <code>^123[4-8].*</code> - Pattern range
-                </div>
+                <h3>Search Account Number:</h3>
 
                 <form id="regexForm">
                     <div class="form-group">
-                        <label>Search Account Number:</label>
                         <input type="text" id="regexInput" placeholder="Enter account number or regex pattern" value="^1234.*">
                     </div>
                     <button type="submit">Search</button>
@@ -73,24 +58,10 @@
 
             <!-- Attack 3: $where Injection -->
             <div class="attack-section" id="attack3">
-                <h3>$where Injection</h3>
-
-                <div class="hint-box">
-                    <strong>Description:</strong> Search accounts by name with JavaScript injection<br><br>
-
-                    <strong>Normal Search:</strong><br>
-                    • <code>John Doe</code> - Find John Doe's account<br>
-                    • <code>Alice Smith</code> - Find Alice Smith's account<br><br>
-
-                    <strong>Injection Payloads:</strong><br>
-                    • <code>' || '1'=='1</code> - Get ALL accounts<br>
-                    • <code>' || (function(){ return true; })() || '</code> - Function bypass<br>
-                    • <code>' || this.balance > 100000 || '</code> - Balance > $100K<br>
-                </div>
+                <h3>Search Account Name:</h3>
 
                 <form id="whereForm">
                     <div class="form-group">
-                        <label>Search Account Holder:</label>
                         <input type="text" id="whereInput" placeholder="Enter account holder name or injection payload" value="John Doe">
                     </div>
                     <button type="submit">Search</button>
@@ -114,41 +85,6 @@
                         <button type="button" class="quick-btn" data-payload="' || this.balance > 100000 || '">
                             Balance > 100K
                         </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Attack 4: Stored XSS -->
-            <div class="attack-section" id="attack4">
-                <h3>Stored XSS</h3>
-
-                <div class="hint-box">
-                    <strong>Description:</strong> Post comments that execute JavaScript<br><br>
-
-                    <strong>Test Payloads:</strong><br>
-                    • <code>&lt;img src=x onerror=alert('XSS')&gt;</code><br>
-                    • <code>&lt;svg onload=alert('XSS')&gt;</code><br>
-                    • <code>&lt;iframe src="javascript:alert('XSS')"&gt;</code> - Iframe injection<br>
-                    • <code>&lt;body onload=alert('XSS')&gt;</code> - Body event
-                </div>
-
-                <form id="xssForm">
-                    <div class="form-group">
-                        <label>Post Comment:</label>
-                        <textarea id="xssInput" rows="4" placeholder="Enter comment or XSS payload"><iframe src="javascript:alert('XSS')"></iframe></textarea>
-                    </div>
-                    <button type="submit">Save Comment</button>
-                </form>
-
-                <div class="result-box" id="xssResult"></div>
-
-                <div class="comments-section">
-                    <div class="comments-header">
-                        <h4 class="comments-title">Stored Comments:</h4>
-                        <button class="clear-btn" onclick="clearComments()">Clear All</button>
-                    </div>
-                    <div id="commentsDisplay" class="comments-display">
-                        <div class="loading">Loading comments...</div>
                     </div>
                 </div>
             </div>

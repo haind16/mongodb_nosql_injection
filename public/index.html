@@ -9,29 +9,11 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Demo Login</h1>
-            <p>NoSQL Injection Vulnerability Demo</p>
+            <h1>NoSQL Injection Vulnerability Demo</h1>
         </div>
 
         <div class="content">
             <h2 class="login-title">Login</h2>
-
-            <div class="hint-box">
-                <h3>Authentication Bypass</h3><br>
-
-                <strong>Description:</strong> NoSQL injection to bypass authentication<br><br>
-
-                <strong>Normal Login:</strong>
-                • admin / admin123<br><br>
-
-                <strong>NoSQL Operator Injection</strong>
-                • Username: <code>admin</code><br>
-                • Password: <code>{"$ne": ""}</code><br><br>
-                
-                <strong>Try other operators</strong>
-                • <code>{"$gt": ""}</code> - Greater than empty<br>
-                • <code>{"$exists": true}</code> - Field exists<br>
-            </div>
 
             <form class="login-form" id="loginForm">
                 <div class="form-group">

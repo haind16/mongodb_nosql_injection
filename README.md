@@ -63,7 +63,6 @@ nosql-injection-demo/
 │   │   └── database.js    # Database connection & setup
 │   ├── models/
 │   │   ├── User.js        # User model
-│   │   └── Comment.js     # Comment model
 │   └── routes/
 │       ├── auth.js        # Authentication routes (vulnerable)
 │       └── api.js         # API routes (vulnerable)
